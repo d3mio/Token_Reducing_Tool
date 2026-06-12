@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 
 type CompressionStrategy = 'gentle' | 'moderate' | 'aggressive';
 
@@ -25,6 +25,63 @@ export default function PromptCompressor() {
   const [copied, setCopied] = useState(false);
   const [timeTaken, setTimeTaken] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
+
+  // Theme State
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Load theme from localStorage if available
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('prompt-compressor-theme');
+    if (savedTheme === 'light') {
+      setIsDarkMode(false);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setIsDarkMode((prev) => {
+      const next = !prev;
+      localStorage.setItem('prompt-compressor-theme', next ? 'dark' : 'light');
+      return next;
+    });
+  };
+
+  const theme = isDarkMode ? {
+    bg: 'bg-black',
+    text: 'text-white',
+    textMuted: 'text-zinc-500',
+    textSecondary: 'text-zinc-400',
+    border: 'border-zinc-800',
+    borderFocus: 'focus:border-zinc-600',
+    borderHover: 'hover:border-zinc-600',
+    inputBg: 'bg-zinc-950',
+    inputPlaceholder: 'placeholder:text-zinc-700',
+    navLink: 'text-zinc-600 hover:text-zinc-300',
+    navLinkActive: 'text-white',
+    btnPrimaryBg: 'bg-white',
+    btnPrimaryText: 'text-black',
+    btnPrimaryHover: 'hover:bg-zinc-200',
+    modalBg: 'bg-[#0a0a0a]',
+    modalOverlay: 'bg-black/60',
+    divider: 'bg-zinc-800'
+  } : {
+    bg: 'bg-white',
+    text: 'text-black',
+    textMuted: 'text-zinc-400',
+    textSecondary: 'text-zinc-600',
+    border: 'border-zinc-200',
+    borderFocus: 'focus:border-zinc-400',
+    borderHover: 'hover:border-zinc-400',
+    inputBg: 'bg-zinc-50',
+    inputPlaceholder: 'placeholder:text-zinc-400',
+    navLink: 'text-zinc-400 hover:text-zinc-600',
+    navLinkActive: 'text-black',
+    btnPrimaryBg: 'bg-black',
+    btnPrimaryText: 'text-white',
+    btnPrimaryHover: 'hover:bg-zinc-800',
+    modalBg: 'bg-white',
+    modalOverlay: 'bg-black/20',
+    divider: 'bg-zinc-200'
+  };
 
   // Support Modal State
   const [isSupportOpen, setIsSupportOpen] = useState(false);
@@ -119,23 +176,32 @@ export default function PromptCompressor() {
       : null;
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center px-6 py-10 font-sans relative">
+    <div className={`min-h-screen ${theme.bg} ${theme.text} flex flex-col items-center px-6 py-10 font-sans relative transition-colors duration-200`}>
       <div className="w-full max-w-4xl flex flex-col gap-10">
 
         {/* Header */}
-        <header className="flex items-center justify-between border-b border-zinc-800 pb-5">
-          <span className="font-mono text-[13px] text-white tracking-wider">
-            prompt<span className="text-zinc-600">/</span>compress
-          </span>
+        <header className={`flex items-center justify-between border-b ${theme.border} pb-5 transition-colors duration-200`}>
+          <div className="flex items-center gap-4">
+            <span className={`font-mono text-[13px] ${theme.text} tracking-wider`}>
+              prompt<span className={theme.textMuted}>/</span>compress
+            </span>
+          </div>
           <nav className="flex items-center gap-6">
-            <button className="text-[12px] tracking-wide transition-colors text-white">
+            <button className={`text-[12px] tracking-wide transition-colors ${theme.navLinkActive}`}>
               compress
             </button>
             <button 
               onClick={() => setIsSupportOpen(true)}
-              className="text-[12px] tracking-wide transition-colors text-zinc-600 hover:text-zinc-300"
+              className={`text-[12px] tracking-wide transition-colors ${theme.navLink}`}
             >
               support
+            </button>
+            <button 
+              onClick={toggleTheme}
+              className={`text-[12px] tracking-wide transition-colors ${theme.navLink} ml-2 flex items-center justify-center`}
+              title="Toggle Theme"
+            >
+              {isDarkMode ? 'light' : 'dark'}
             </button>
           </nav>
         </header>
@@ -146,11 +212,11 @@ export default function PromptCompressor() {
           {/* Input */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-mono uppercase tracking-[0.15em] text-zinc-500">
+              <label className={`text-[10px] font-mono uppercase tracking-[0.15em] ${theme.textMuted}`}>
                 input
               </label>
               {input.trim() && (
-                <span className="text-[10px] font-mono text-zinc-600">
+                <span className={`text-[10px] font-mono ${theme.textSecondary}`}>
                   {estimateTokenCount(input)} tok
                 </span>
               )}
@@ -160,25 +226,25 @@ export default function PromptCompressor() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Paste your prompt…"
               spellCheck={false}
-              className="
-                h-72 w-full rounded bg-zinc-950 border border-zinc-800
-                font-mono text-[13px] leading-relaxed text-zinc-100
-                placeholder:text-zinc-700
+              className={`
+                h-72 w-full rounded ${theme.inputBg} border ${theme.border}
+                font-mono text-[13px] leading-relaxed ${theme.text}
+                ${theme.inputPlaceholder}
                 p-4 resize-none
-                focus:outline-none focus:border-zinc-600
-                transition-colors duration-150
-              "
+                focus:outline-none ${theme.borderFocus}
+                transition-colors duration-200
+              `}
             />
           </div>
 
           {/* Output */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-mono uppercase tracking-[0.15em] text-zinc-500">
+              <label className={`text-[10px] font-mono uppercase tracking-[0.15em] ${theme.textMuted}`}>
                 output
               </label>
               {output && (
-                <span className="text-[10px] font-mono text-zinc-600">
+                <span className={`text-[10px] font-mono ${theme.textSecondary}`}>
                   {metrics.compressedTokens} tok
                 </span>
               )}
@@ -189,12 +255,12 @@ export default function PromptCompressor() {
               placeholder="Compressed output appears here."
               spellCheck={false}
               className={`
-                h-72 w-full rounded bg-zinc-950 border border-zinc-800
-                font-mono text-[13px] leading-relaxed text-zinc-100
-                placeholder:text-zinc-700
+                h-72 w-full rounded ${theme.inputBg} border ${theme.border}
+                font-mono text-[13px] leading-relaxed ${theme.text}
+                ${theme.inputPlaceholder}
                 p-4 resize-none
                 focus:outline-none
-                transition-opacity duration-200
+                transition-all duration-200
                 ${isCompressing ? 'opacity-40 animate-pulse' : 'opacity-100'}
               `}
             />
@@ -203,12 +269,12 @@ export default function PromptCompressor() {
         </div>
 
         {/* Status + Controls */}
-        <div className="flex flex-col gap-4 border-t border-zinc-800 pt-5">
+        <div className={`flex flex-col gap-4 border-t ${theme.border} pt-5 transition-colors duration-200`}>
 
           {/* Inline status line */}
           <div className="h-4">
             {statusLine && (
-              <p className={`font-mono text-[12px] ${isCompressing ? 'text-zinc-300 animate-pulse' : 'text-zinc-500'} tabular-nums`}>
+              <p className={`font-mono text-[12px] ${isCompressing ? `${theme.textSecondary} animate-pulse` : theme.textMuted} tabular-nums`}>
                 {isCompressing ? 'AI Agent is compressing prompt...' : statusLine}
               </p>
             )}
@@ -218,17 +284,17 @@ export default function PromptCompressor() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 
             {/* Strategy toggles */}
-            <div className="flex items-center gap-1 font-mono text-[12px]">
-              <span className="text-zinc-600 mr-2">strategy</span>
+            <div className={`flex items-center gap-1 font-mono text-[12px]`}>
+              <span className={`${theme.textSecondary} mr-2`}>strategy</span>
               {STRATEGIES.map((s, i) => (
                 <span key={s} className="flex items-center gap-1">
-                  {i > 0 && <span className="text-zinc-800 select-none">/</span>}
+                  {i > 0 && <span className={`${theme.textMuted} select-none`}>/</span>}
                   <button
                     onClick={() => setStrategy(s)}
                     disabled={isCompressing}
                     className={`transition-colors duration-100 ${strategy === s
-                      ? 'text-white'
-                      : 'text-zinc-600 hover:text-zinc-400'
+                      ? theme.navLinkActive
+                      : theme.navLink
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {s}
@@ -242,38 +308,38 @@ export default function PromptCompressor() {
               <button
                 onClick={handleReset}
                 disabled={isCompressing}
-                className="text-[12px] font-mono text-zinc-600 hover:text-zinc-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`text-[12px] font-mono ${theme.navLink} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 reset
               </button>
-              <div className="w-px h-3 bg-zinc-800" />
+              <div className={`w-px h-3 ${theme.divider}`} />
               <button
                 onClick={handleCopy}
                 disabled={!output || isCompressing}
-                className="
-                  text-[12px] font-mono text-zinc-400 border border-zinc-800 rounded
-                  px-3 py-1.5 hover:border-zinc-600 hover:text-zinc-200
+                className={`
+                  text-[12px] font-mono ${theme.textSecondary} border ${theme.border} rounded
+                  px-3 py-1.5 ${theme.borderHover} ${theme.navLinkActive}
                   disabled:opacity-25 disabled:cursor-not-allowed
-                  transition-colors duration-100
-                "
+                  transition-colors duration-200
+                `}
               >
                 {copied ? 'copied ✓' : 'copy'}
               </button>
               <button
                 onClick={handleCompress}
                 disabled={!input.trim() || isCompressing}
-                className="
+                className={`
                   text-[12px] font-mono font-medium
-                  bg-white text-black rounded px-3 py-1.5
-                  hover:bg-zinc-200
+                  ${theme.btnPrimaryBg} ${theme.btnPrimaryText} rounded px-3 py-1.5
+                  ${theme.btnPrimaryHover}
                   disabled:opacity-25 disabled:cursor-not-allowed
-                  transition-all duration-100
+                  transition-all duration-200
                   flex items-center gap-2
-                "
+                `}
               >
                 {isCompressing ? (
                   <>
-                    <svg className="animate-spin h-3 w-3 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className={`animate-spin h-3 w-3 ${theme.btnPrimaryText}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -290,13 +356,13 @@ export default function PromptCompressor() {
 
       {/* Support Modal */}
       {isSupportOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[#0a0a0a] border border-zinc-800 rounded-lg p-6 w-full max-w-md flex flex-col gap-4 shadow-2xl">
+        <div className={`fixed inset-0 z-50 flex items-center justify-center ${theme.modalOverlay} backdrop-blur-sm p-4`}>
+          <div className={`${theme.modalBg} border ${theme.border} rounded-lg p-6 w-full max-w-md flex flex-col gap-4 shadow-2xl`}>
             <div className="flex justify-between items-center mb-1">
-              <h3 className="text-white font-mono text-[13px] tracking-wide">Contact Support</h3>
+              <h3 className={`${theme.text} font-mono text-[13px] tracking-wide`}>Contact Support</h3>
               <button 
                 onClick={() => setIsSupportOpen(false)} 
-                className="text-zinc-500 hover:text-white transition-colors"
+                className={`${theme.textMuted} hover:${theme.text} transition-colors`}
               >
                 ✕
               </button>
@@ -306,7 +372,7 @@ export default function PromptCompressor() {
               value={supportMessage}
               onChange={(e) => setSupportMessage(e.target.value)}
               placeholder="How can we help you?"
-              className="w-full h-32 bg-black border border-zinc-800 rounded p-3 text-[13px] font-mono text-zinc-200 placeholder:text-zinc-700 resize-none focus:outline-none focus:border-zinc-600 transition-colors"
+              className={`w-full h-32 ${theme.bg} border ${theme.border} rounded p-3 text-[13px] font-mono ${theme.text} ${theme.inputPlaceholder} resize-none focus:outline-none ${theme.borderFocus} transition-colors`}
             />
             
             <div className="flex justify-between items-center mt-2">
@@ -317,7 +383,7 @@ export default function PromptCompressor() {
               <button
                 onClick={handleSupportSubmit}
                 disabled={isSendingSupport || !supportMessage.trim()}
-                className="text-[12px] font-mono font-medium bg-white text-black px-4 py-1.5 rounded hover:bg-zinc-200 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+                className={`text-[12px] font-mono font-medium ${theme.btnPrimaryBg} ${theme.btnPrimaryText} px-4 py-1.5 rounded ${theme.btnPrimaryHover} transition-colors disabled:opacity-25 disabled:cursor-not-allowed`}
               >
                 {isSendingSupport ? 'sending...' : 'send →'}
               </button>
