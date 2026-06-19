@@ -2,11 +2,11 @@
 
 A developer-grade, AI-powered tool designed to drastically reduce the token count of large language model (LLM) prompts without losing their core intent or constraints. By utilizing the **Google Gemini API**, this tool intelligently prunes filler words, restructures syntax, and extracts key entities based on your desired compression strategy.
 
-![Clean UI](https://img.shields.io/badge/UI-Minimalist-black?style=flat-square) ![Framework](https://img.shields.io/badge/Framework-Next.js%2016-black?style=flat-square&logo=next.js) ![AI](https://img.shields.io/badge/AI-Gemini%201.5%20Flash-blue?style=flat-square)
+![Clean UI](https://img.shields.io/badge/UI-Minimalist-black?style=flat-square) ![Framework](https://img.shields.io/badge/Framework-Next.js%2016-black?style=flat-square&logo=next.js) ![AI](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-blue?style=flat-square)
 
 ## ✨ Features
 
-*   **Intelligent AI Compression**: Uses `gemini-1.5-flash` to understand the context of your prompt and compress it intelligently.
+*   **Intelligent AI Compression**: Uses `gemini-2.5-flash` to understand the context of your prompt and compress it intelligently.
 *   **Three Strategies**:
     *   *Gentle*: Removes filler and pleasantries while keeping natural sentence structure.
     *   *Moderate*: Aggressively removes stop words and transition words for a dense but readable output.
