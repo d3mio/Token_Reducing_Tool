@@ -37,8 +37,8 @@ export async function POST(req: Request) {
       }
     };
 
-    // Note: Using gemini-3.5-flash as the reliable, fast model for compression.
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
+    // Note: Using gemini-1.5-flash as the reliable, fast model for compression.
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
